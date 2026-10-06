@@ -10,7 +10,7 @@ public class CardDeck {
     public synchronized Card removeFromPack(){ // Draw
         return cards.remove();
     }
-    public synchronized void addToPack(Card card){ // Discard
+    public synchronized void addCard(Card card){ // Discard
         cards.add(card);
         
     }

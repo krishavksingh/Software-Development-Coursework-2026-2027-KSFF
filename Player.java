@@ -15,6 +15,10 @@ public class Player {
         cards.add(card);
     }
 
+    public void removeCard(Card card){
+        cards.remove(card);
+    }
+
     public void getPreferredCards(){}
 
     public void getNonPreferredCards(){}
