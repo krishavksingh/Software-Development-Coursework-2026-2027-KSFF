@@ -1,1 +1,9 @@
 pack.txt
+player_1_output.txt
+player_2_output.txt
+player_3_output.txt
+player_4_output.txt
+Card.class
+CardDeck.class
+CardGame.class
+Player.class
