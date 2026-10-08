@@ -9,18 +9,19 @@ import java.util.Queue;
 import java.util.Scanner;
 
 public class CardGame {
-    
+    static Integer numplayers;
+    static CardDeck[] decks;
 
     public static void main(String[] args) throws IOException {
         List<String> cards;
         int count;
         LinkedList<Card> pack;
         List<Player> players;
-        CardDeck[] decks;
+        
         
         System.out.print("Krishav Singh, Fin Feakes Software Development Coursework 2026/27\nPlease enter the number of players:");
         Scanner input = new Scanner(System.in);
-        Integer numplayers = input.nextInt();
+        numplayers = input.nextInt();
 
         System.out.print("Please enter the location of the pack to load:");
         String filename = input.next();
@@ -38,6 +39,20 @@ public class CardGame {
             pack.add(new Card(Integer.valueOf(card)));
         }
 
+        
+        System.out.println(pack.toString());
+        decks = new CardDeck[numplayers];
+        for (int i = 0; i < numplayers; i++){
+            decks[i] = new CardDeck(i+1);
+        }
+        for (int i = 0; i < numplayers; i++) {
+            for (CardDeck deck: decks) {
+                System.out.println(i);
+                Card card = pack.remove();
+                deck.addCard(card);
+                
+            }
+        }
         players = new ArrayList<Player>();
         for (int i = 1; i <= numplayers; i++) {
             Player player = new Player(i);
@@ -49,19 +64,6 @@ public class CardGame {
             for (Player player : players) {
                 Card card = pack.remove();
                 player.addCard(card);
-                
-            }
-        }
-        System.out.println(pack.toString());
-        decks = new CardDeck[numplayers];
-        for (int i = 0; i < numplayers; i++){
-            decks[i] = new CardDeck(i+1);
-        }
-        for (int i = 0; i < numplayers; i++) {
-            for (CardDeck deck: decks) {
-                System.out.println(i);
-                Card card = pack.remove();
-                deck.addCard(card);
                 
             }
         }

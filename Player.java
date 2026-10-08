@@ -5,13 +5,17 @@ import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-public class Player extends Thread{
+public class Player implements Runnable{
     private List<Card> cards;
     private int number = -1;
     private final Logger logger;
+    private volatile boolean running = true;
+
+
 
     public Player(int playerNumber) throws IOException{
         number = playerNumber;
+        
         cards = new ArrayList<Card>();
         logger = Logger.getLogger("Player " + number);
 
@@ -23,12 +27,31 @@ public class Player extends Thread{
 
 
     }
-    public void run(CardDeck leftDeck, CardDeck rightDeck, int numbers){
-        while (true) { 
-            this.play(leftDeck, rightDeck, numbers);
+    public void run(){
+        int gameState = 0;
+        CardDeck left;
+        CardDeck right;
+        if (number != CardGame.numplayers){
+            left = CardGame.decks[number-1];
+            right = CardGame.decks[number];
         }
+        else{
+            left = CardGame.decks[number-1];
+            right = CardGame.decks[0];
+
+        }
+        while (gameState == 0 && running) { 
+            gameState = this.play(left, right, CardGame.numplayers);
+            
+        }
+        if (gameState == 1) logger.info("player" + number + "wins");
     }
-    public void play (CardDeck leftDeck, CardDeck rightDeck, int numbers){
+    public void stop(){
+
+        running = false;
+        logger.info("player" + number + "exits");
+    }
+    public int play (CardDeck leftDeck, CardDeck rightDeck, int numbers){
         if (numbers != number){
             leftDeck.getLock().lock();
             rightDeck.getLock().lock();
@@ -52,13 +75,16 @@ public class Player extends Thread{
             Card discarded = unpreferredCards.getFirst();
             cards.remove(discarded);
             logger.info("player " + number + " discards a " + discarded.getDenom() + "from deck" + (number+1));
+            
         }
         else {
+            return 1;
             
         }
         leftDeck.getLock().unlock();
         rightDeck.getLock().unlock();
         logger.info("player " + number + " current hand is " + cards.get(0).getDenom()  +" "+ cards.get(1).getDenom()  +" "+ cards.get(2).getDenom()  +" "+ cards.get(3).getDenom());
+        return 0;
     }
 
     public void addCard(Card card){
