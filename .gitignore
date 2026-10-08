@@ -7,3 +7,7 @@ Card.class
 CardDeck.class
 CardGame.class
 Player.class
+player_1_output.txt.lck
+player_2_output.txt.lck
+player_3_output.txt.lck
+player_4_output.txt.lck

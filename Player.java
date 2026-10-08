@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
@@ -72,8 +73,11 @@ public class Player implements Runnable{
             }  
         }
         if (!unpreferredCards.isEmpty()){
-            Card discarded = unpreferredCards.getFirst();
+            Random r = new Random();
+            int index = r.nextInt(unpreferredCards.size());
+            Card discarded = unpreferredCards.get(index);
             cards.remove(discarded);
+            rightDeck.addCard(discarded);
             logger.info("player " + number + " discards a " + discarded.getDenom() + "from deck" + (number+1));
             
         }
@@ -83,6 +87,7 @@ public class Player implements Runnable{
         }
         leftDeck.getLock().unlock();
         rightDeck.getLock().unlock();
+        System.out.println(((leftDeck.toString()+ rightDeck.toString())));
         logger.info("player " + number + " current hand is " + cards.get(0).getDenom()  +" "+ cards.get(1).getDenom()  +" "+ cards.get(2).getDenom()  +" "+ cards.get(3).getDenom());
         return 0;
     }

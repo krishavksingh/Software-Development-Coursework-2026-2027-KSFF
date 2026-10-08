@@ -59,7 +59,7 @@ public class CardGame {
             players.add(player);
             
         }
-        System.out.println(pack.toString());
+        
         for (int i = 0; i < 4; i++) {
             for (Player player : players) {
                 Card card = pack.remove();
@@ -67,7 +67,12 @@ public class CardGame {
                 
             }
         }
-        System.out.println(pack.toString());
+        for (Player player : players) {
+                Thread t = new Thread(player);
+                t.start();
+                
+            }
+        
 
                 
 
