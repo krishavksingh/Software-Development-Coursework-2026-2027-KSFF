@@ -1,17 +1,22 @@
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-public class Player extends Thread{
+public class Player implements Runnable{
     private List<Card> cards;
     private int number = -1;
     private final Logger logger;
+    private volatile boolean running = true;
+    private List<Player> players;
 
-    public Player(int playerNumber) throws IOException{
+
+    public Player(int playerNumber, List<Player> players) throws IOException{
         number = playerNumber;
+        this.players = players;
         cards = new ArrayList<Card>();
         logger = Logger.getLogger("Player " + number);
 
@@ -23,12 +28,47 @@ public class Player extends Thread{
 
 
     }
-    public void run(CardDeck leftDeck, CardDeck rightDeck, int numbers){
-        while (true) { 
-            this.play(leftDeck, rightDeck, numbers);
+    public void run(){
+        int gameState = 0;
+        CardDeck left;
+        CardDeck right;
+        if (number != CardGame.numplayers){
+            left = CardGame.decks[number-1];
+            right = CardGame.decks[number];
+        }
+        else{
+            left = CardGame.decks[number-1];
+            right = CardGame.decks[0];
+
+        }
+        while (gameState == 0 && running) { 
+            gameState = this.play(left, right, CardGame.numplayers);
+            
+        }
+        if (gameState == 1) {
+            logger.info("player" + number + "wins");
+            for (Player player: players) {
+                if (player!=this){
+                    player.stop();
+                }
+                
+            }
         }
     }
-    public void play (CardDeck leftDeck, CardDeck rightDeck, int numbers){
+    public void stop(){
+
+        running = false;
+        logger.info("player" + number + "exits");
+    }
+    public int play (CardDeck leftDeck, CardDeck rightDeck, int numbers){
+        List<Card> unpreferredCards = new ArrayList<Card>();
+        for (Card card: cards){
+            if (card.getDenom() != (number)){
+                unpreferredCards.add(card);
+            }  
+        }
+        if (unpreferredCards.isEmpty()) return 1;
+
         if (numbers != number){
             leftDeck.getLock().lock();
             rightDeck.getLock().lock();
@@ -39,26 +79,33 @@ public class Player extends Thread{
             leftDeck.getLock().lock();
         }
         Card drawn = leftDeck.removeFromDeck();
-        logger.info("player " + number + " draws a " + drawn.getDenom() + "from deck" + number);
+        logger.info("player " + number + " draws a " + drawn.getDenom() + " from deck " + number);
         cards.add(drawn);
 
-        List<Card> unpreferredCards = new ArrayList<Card>();
+        unpreferredCards = new ArrayList<Card>();
         for (Card card: cards){
             if (card.getDenom() != (number)){
                 unpreferredCards.add(card);
             }  
         }
         if (!unpreferredCards.isEmpty()){
-            Card discarded = unpreferredCards.getFirst();
+            Random r = new Random();
+            int index = r.nextInt(unpreferredCards.size());
+            Card discarded = unpreferredCards.get(index);
             cards.remove(discarded);
+            rightDeck.addCard(discarded);
             logger.info("player " + number + " discards a " + discarded.getDenom() + "from deck" + (number+1));
+            
         }
         else {
+            return 1;
             
         }
         leftDeck.getLock().unlock();
         rightDeck.getLock().unlock();
+        System.out.println(((leftDeck.toString()+ rightDeck.toString())));
         logger.info("player " + number + " current hand is " + cards.get(0).getDenom()  +" "+ cards.get(1).getDenom()  +" "+ cards.get(2).getDenom()  +" "+ cards.get(3).getDenom());
+        return 0;
     }
 
     public void addCard(Card card){
