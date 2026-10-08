@@ -19,6 +19,7 @@ public class CardGame {
         List<Player> players;
         
         
+        
         System.out.print("Krishav Singh, Fin Feakes Software Development Coursework 2026/27\nPlease enter the number of players:");
         Scanner input = new Scanner(System.in);
         numplayers = input.nextInt();
@@ -39,6 +40,21 @@ public class CardGame {
             pack.add(new Card(Integer.valueOf(card)));
         }
 
+        players = new ArrayList<Player>();
+        for (int i = 1; i <= numplayers; i++) {
+            Player player = new Player(i, players);
+            players.add(player);
+            
+        }
+        
+        for (int i = 0; i < 4; i++) {
+            for (Player player : players) {
+                Card card = pack.remove();
+                player.addCard(card);
+                
+            }
+        }
+
         
         System.out.println(pack.toString());
         decks = new CardDeck[numplayers];
@@ -53,20 +69,7 @@ public class CardGame {
                 
             }
         }
-        players = new ArrayList<Player>();
-        for (int i = 1; i <= numplayers; i++) {
-            Player player = new Player(i);
-            players.add(player);
-            
-        }
         
-        for (int i = 0; i < 4; i++) {
-            for (Player player : players) {
-                Card card = pack.remove();
-                player.addCard(card);
-                
-            }
-        }
         for (Player player : players) {
                 Thread t = new Thread(player);
                 t.start();

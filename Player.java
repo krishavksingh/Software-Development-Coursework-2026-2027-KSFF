@@ -11,12 +11,12 @@ public class Player implements Runnable{
     private int number = -1;
     private final Logger logger;
     private volatile boolean running = true;
+    private List<Player> players;
 
 
-
-    public Player(int playerNumber) throws IOException{
+    public Player(int playerNumber, List<Player> players) throws IOException{
         number = playerNumber;
-        
+        this.players = players;
         cards = new ArrayList<Card>();
         logger = Logger.getLogger("Player " + number);
 
@@ -45,7 +45,15 @@ public class Player implements Runnable{
             gameState = this.play(left, right, CardGame.numplayers);
             
         }
-        if (gameState == 1) logger.info("player" + number + "wins");
+        if (gameState == 1) {
+            logger.info("player" + number + "wins");
+            for (Player player: players) {
+                if (player!=this){
+                    player.stop();
+                }
+                
+            }
+        }
     }
     public void stop(){
 
@@ -53,6 +61,14 @@ public class Player implements Runnable{
         logger.info("player" + number + "exits");
     }
     public int play (CardDeck leftDeck, CardDeck rightDeck, int numbers){
+        List<Card> unpreferredCards = new ArrayList<Card>();
+        for (Card card: cards){
+            if (card.getDenom() != (number)){
+                unpreferredCards.add(card);
+            }  
+        }
+        if (unpreferredCards.isEmpty()) return 1;
+
         if (numbers != number){
             leftDeck.getLock().lock();
             rightDeck.getLock().lock();
@@ -63,10 +79,10 @@ public class Player implements Runnable{
             leftDeck.getLock().lock();
         }
         Card drawn = leftDeck.removeFromDeck();
-        logger.info("player " + number + " draws a " + drawn.getDenom() + "from deck" + number);
+        logger.info("player " + number + " draws a " + drawn.getDenom() + " from deck " + number);
         cards.add(drawn);
 
-        List<Card> unpreferredCards = new ArrayList<Card>();
+        unpreferredCards = new ArrayList<Card>();
         for (Card card: cards){
             if (card.getDenom() != (number)){
                 unpreferredCards.add(card);
