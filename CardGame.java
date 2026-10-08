@@ -54,10 +54,12 @@ public class CardGame {
         }
         System.out.println(pack.toString());
         decks = new CardDeck[numplayers];
+        for (int i = 0; i < numplayers; i++){
+            decks[i] = new CardDeck(i+1);
+        }
         for (int i = 0; i < numplayers; i++) {
             for (CardDeck deck: decks) {
                 System.out.println(i);
-                deck = new CardDeck();
                 Card card = pack.remove();
                 deck.addCard(card);
                 
