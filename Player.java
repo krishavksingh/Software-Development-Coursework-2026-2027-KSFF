@@ -3,8 +3,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.FileHandler;
+import java.util.logging.Formatter;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
+
+
 
 public class Player implements Runnable{
     private List<Card> cards;
@@ -21,7 +24,7 @@ public class Player implements Runnable{
         logger = Logger.getLogger("Player " + number);
 
         FileHandler fileHandler = new FileHandler("player_"+number+"_output.txt");
-        fileHandler.setFormatter(new SimpleFormatter());
+        fileHandler.setFormatter(new CustomFormat());
 
         logger.addHandler(fileHandler);
         logger.setUseParentHandlers(false);
@@ -42,7 +45,10 @@ public class Player implements Runnable{
 
         }
         while (gameState == 0 && running) { 
+            if (!left.isEmpty()) {
             gameState = this.play(left, right, CardGame.numplayers);
+            }
+            
             
         }
         if (gameState == 1) {
@@ -53,12 +59,17 @@ public class Player implements Runnable{
                 }
                 
             }
+            for (CardDeck deck: CardGame.decks) {
+                deck.getLock().lock();
+                deck.doFinalLog();
+                deck.getLock().unlock();
+            }
         }
     }
     public void stop(){
 
         running = false;
-        logger.info("player" + number + "exits");
+        
     }
     public int play (CardDeck leftDeck, CardDeck rightDeck, int numbers){
         List<Card> unpreferredCards = new ArrayList<Card>();
@@ -79,6 +90,7 @@ public class Player implements Runnable{
             leftDeck.getLock().lock();
         }
         Card drawn = leftDeck.removeFromDeck();
+        
         logger.info("player " + number + " draws a " + drawn.getDenom() + " from deck " + number);
         cards.add(drawn);
 
@@ -88,30 +100,52 @@ public class Player implements Runnable{
                 unpreferredCards.add(card);
             }  
         }
-        if (!unpreferredCards.isEmpty()){
+        if (!unpreferredCards.isEmpty() ){
             Random r = new Random();
             int index = r.nextInt(unpreferredCards.size());
             Card discarded = unpreferredCards.get(index);
             cards.remove(discarded);
             rightDeck.addCard(discarded);
-            logger.info("player " + number + " discards a " + discarded.getDenom() + "from deck" + (number+1));
+            if (number == CardGame.numplayers){
+                logger.info("player " + number + " discards a " + discarded.getDenom() + " to deck 1" );
+            }
+            else {
+                logger.info("player " + number + " discards a " + discarded.getDenom() + " to deck " + (number+1));
+            }
+            
             
         }
-        else {
-            return 1;
+        
             
-        }
+        
         leftDeck.getLock().unlock();
         rightDeck.getLock().unlock();
-        System.out.println(((leftDeck.toString()+ rightDeck.toString())));
-        logger.info("player " + number + " current hand is " + cards.get(0).getDenom()  +" "+ cards.get(1).getDenom()  +" "+ cards.get(2).getDenom()  +" "+ cards.get(3).getDenom());
+        if (this.hasWon()){
+            return 1;
+        }
+        
+        String msg = "player "+ number + " current hand is ";
+        for (Card card : cards) {
+            msg += card.getDenom() + " ";
+
+            
+        }
+        logger.info(msg);
+        if(running == false){
+        logger.info("player " + number + " exits");
+        }
         return 0;
     }
 
     public void addCard(Card card){
         cards.add(card);
         if (cards.size() == 4){
-            logger.info("player " + number + " initial hand is " + cards.get(0).getDenom() +" "+ cards.get(1).getDenom()+" " + cards.get(2).getDenom()+" " + cards.get(3).getDenom());
+            String msg = "player "+ number + " initial hand is ";
+            for (Card card1 : cards) {
+                msg += card1.getDenom() + " ";
+
+                
+            }
         }
     }
 
@@ -125,6 +159,18 @@ public class Player implements Runnable{
 
     public int getNumber(){
         return number;
+    }
+
+
+    public boolean hasWon(){
+        int cardDenom = cards.get(0).getDenom();
+        for (int i=1; i < cards.size(); i++){
+
+            if (cards.get(i).getDenom() != cardDenom){
+                return false;
+            }
+        }
+        return true;
     }
 
 }
