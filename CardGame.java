@@ -1,11 +1,9 @@
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Scanner;
 
 public class CardGame {
@@ -61,7 +59,7 @@ public class CardGame {
         for (int i = 0; i < numplayers; i++){
             decks[i] = new CardDeck(i+1);
         }
-        for (int i = 0; i < numplayers; i++) {
+        for (int i = 0; i < 4; i++) {
             for (CardDeck deck: decks) {
                 System.out.println(i);
                 Card card = pack.remove();
