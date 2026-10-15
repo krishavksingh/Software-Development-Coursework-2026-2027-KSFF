@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -20,20 +21,60 @@ public class CardGame {
         
         
         
-        System.out.print("Krishav Singh, Fin Feakes Software Development Coursework 2026/27\nPlease enter the number of players:");
+        System.out.print("Krishav Singh, Fin Feakes Software Development Coursework 2026/27\n");
+
         Scanner input = new Scanner(System.in);
-        numplayers = input.nextInt();
 
-        System.out.print("Please enter the location of the pack to load:");
-        String filename = input.next();
-
-        input.close();
-        latch = new CountDownLatch(numplayers);
-        cards = Files.readAllLines(Paths.get(filename));
-        count = cards.size();
-        if(count != 8*numplayers){
-            throw new IllegalArgumentException("Pack file is invalid. Please enter a valid pack file.");
+        numplayers = 0;
+        while(numplayers <= 1){
+            System.out.print("Please enter the number of players: ");
+            try{
+                numplayers = Integer.parseInt(input.nextLine().trim());
+            }
+            catch(NumberFormatException e){
+                numplayers = 0;
+            }
         }
+
+        cards = null;
+        boolean validPack = false;
+        while(!validPack){
+            System.out.print("Please enter the location of the pack to load:");
+            String filename = input.nextLine();
+            try {
+                cards = Files.readAllLines(Paths.get(filename));
+            } catch (IOException | InvalidPathException e) {
+                System.out.println("Please enter a valid pack name");
+                continue;
+            }
+            if (cards.size() != 8*numplayers){
+                System.out.println("Please enter a pack of a valid size");
+                continue;
+            }
+            validPack = true;
+            for (String line : cards){
+                try {
+                    if(Integer.parseInt(line.trim()) <0){
+                        validPack = false;
+                    }
+                } catch (NumberFormatException e) {
+                    validPack = false;
+                }
+            }
+            if(!validPack){
+                System.out.println("Every row must contain single postive integer");
+            }
+        }
+        //System.out.print("Please enter the location of the pack to load:");
+        //String filename = input.next();
+
+        //input.close();
+        latch = new CountDownLatch(numplayers);
+        //cards = Files.readAllLines(Paths.get(filename));
+        //count = cards.size();
+        //if(count != 8*numplayers){
+        //    throw new IllegalArgumentException("Pack file is invalid. Please enter a valid pack file.");
+        //}
 
         pack = new LinkedList<Card>();
         for (String card: cards){
