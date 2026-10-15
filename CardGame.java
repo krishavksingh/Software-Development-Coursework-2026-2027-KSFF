@@ -5,11 +5,13 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.CountDownLatch;
 
 public class CardGame {
-    static Integer numplayers;
-    static CardDeck[] decks;
-
+    public static Integer numplayers;
+    public static CardDeck[] decks;
+    public static CountDownLatch latch;
+    
     public static void main(String[] args) throws IOException {
         List<String> cards;
         int count;
@@ -26,7 +28,7 @@ public class CardGame {
         String filename = input.next();
 
         input.close();
-
+        latch = new CountDownLatch(numplayers);
         cards = Files.readAllLines(Paths.get(filename));
         count = cards.size();
         if(count != 8*numplayers){
@@ -54,33 +56,42 @@ public class CardGame {
         }
 
         
-        System.out.println(pack.toString());
+        
         decks = new CardDeck[numplayers];
         for (int i = 0; i < numplayers; i++){
             decks[i] = new CardDeck(i+1);
         }
         for (int i = 0; i < 4; i++) {
             for (CardDeck deck: decks) {
-                System.out.println(i);
+                
                 Card card = pack.remove();
                 deck.addCard(card);
                 
             }
         }
+
         
         for (Player player : players) {
-                Thread t = new Thread(player);
-                t.start();
+            Thread t = new Thread(player);
+            t.start();
+            
                 
+        }
+        try{
+            latch.await();
+        }
+        catch(InterruptedException e){
+            Thread.currentThread().interrupt();
+        } 
+
+        for (CardDeck deck: CardGame.decks) {
+            deck.getLock().lock();
+            try {
+                deck.doFinalLog();
             }
-        
-
-                
-
-
-
-
-         
-        
+            finally{
+                deck.getLock().unlock();
+            }
+        }
     }
 }

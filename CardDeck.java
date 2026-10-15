@@ -6,7 +6,7 @@ import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
 public class CardDeck {
-    public Queue<Card> cards;
+    private Queue<Card> cards;
     private final int id;
     private final ReentrantLock lock = new ReentrantLock();
     private final Logger logger;
@@ -31,18 +31,18 @@ public class CardDeck {
         return lock;
     }
 
-    public synchronized Card removeFromDeck(){ // Draw
+    public Card removeFromDeck(){ // Draw
         return cards.remove();
     }
     
-    public synchronized void addCard(Card card){ // Discard
+    public void addCard(Card card){ // Discard
         cards.add(card);
         
     }
-    public synchronized boolean isEmpty(){
+    public boolean isEmpty(){
         return cards.isEmpty();
     }
-    public synchronized void doFinalLog(){
+    public void doFinalLog(){
         String msg = "deck"+ id + " contents: ";
         for (Card card : cards) {
             msg += card.getDenom() + " ";

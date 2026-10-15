@@ -1,5 +1,5 @@
 public class Card {
-    private int denom;
+    private final int denom;
     public Card(int denomination){
         denom = denomination;
     }
