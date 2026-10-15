@@ -23,7 +23,8 @@ public class Player implements Runnable{
         cards = new ArrayList<Card>();
         logger = Logger.getLogger("Player " + number);
 
-        FileHandler fileHandler = new FileHandler("player_"+number+"_output.txt");
+
+        fileHandler = new FileHandler("player"+number+"_output.txt");
         fileHandler.setFormatter(new CustomFormat());
 
         logger.addHandler(fileHandler);
@@ -35,6 +36,9 @@ public class Player implements Runnable{
         int gameState = 0;
         CardDeck left;
         CardDeck right;
+        if(this.hasWon()){
+            gameState = 1;
+        }
         if (number != CardGame.numplayers){
             left = CardGame.decks[number-1];
             right = CardGame.decks[number];
@@ -72,6 +76,8 @@ public class Player implements Runnable{
         
     }
     public int play (CardDeck leftDeck, CardDeck rightDeck, int numbers){
+        
+        if (this.hasWon()) return 1;
         List<Card> unpreferredCards = new ArrayList<Card>();
         for (Card card: cards){
             if (card.getDenom() != (number)){
