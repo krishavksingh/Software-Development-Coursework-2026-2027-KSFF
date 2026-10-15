@@ -32,9 +32,17 @@ public class Player implements Runnable{
 
     }
     public void run(){
+        CardGame.startLatch.countDown();
+        try {
+            CardGame.startLatch.await();
+        } catch (InterruptedException e) {
+           Thread.currentThread().interrupt();
+        }
+        
         int gameState = 0;
         CardDeck left;
         CardDeck right;
+
         if(this.hasWon()){
             gameState = 1;
         }

@@ -12,6 +12,7 @@ public class CardGame {
     public static Integer numplayers;
     public static CardDeck[] decks;
     public static CountDownLatch latch;
+    public static CountDownLatch startLatch;
     
     public static void main(String[] args) throws IOException {
         List<String> cards;
@@ -35,6 +36,7 @@ public class CardGame {
                 numplayers = 0;
             }
         }
+        startLatch = new CountDownLatch(numplayers);
 
         cards = null;
         boolean validPack = false;
@@ -65,17 +67,9 @@ public class CardGame {
                 System.out.println("Every row must contain single postive integer");
             }
         }
-        //System.out.print("Please enter the location of the pack to load:");
-        //String filename = input.next();
-
-        //input.close();
+        
         latch = new CountDownLatch(numplayers);
-        //cards = Files.readAllLines(Paths.get(filename));
-        //count = cards.size();
-        //if(count != 8*numplayers){
-        //    throw new IllegalArgumentException("Pack file is invalid. Please enter a valid pack file.");
-        //}
-
+        
         pack = new LinkedList<Card>();
         for (String card: cards){
             pack.add(new Card(Integer.valueOf(card)));
@@ -118,6 +112,7 @@ public class CardGame {
             
                 
         }
+
         try{
             latch.await();
         }
