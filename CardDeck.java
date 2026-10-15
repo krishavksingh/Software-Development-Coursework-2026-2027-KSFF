@@ -6,7 +6,7 @@ import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
 public class CardDeck {
-    public Queue<Card> cards;
+    private Queue<Card> cards;
     private final int id;
     private final ReentrantLock lock = new ReentrantLock();
     private final Logger logger;
