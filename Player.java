@@ -32,47 +32,53 @@ public class Player implements Runnable{
 
     }
     public void run(){
-        CardGame.startLatch.countDown();
         try {
-            CardGame.startLatch.await();
-        } catch (InterruptedException e) {
-           Thread.currentThread().interrupt();
+            CardGame.startLatch.countDown();
+            try {
+                CardGame.startLatch.await();
+            } catch (InterruptedException e) {
+               Thread.currentThread().interrupt();
+            }
+            
+            int gameState = 0;
+            CardDeck left;
+            CardDeck right;
+    
+            if(this.hasWon()){
+                gameState = 1;
+            }
+            if (number != CardGame.numplayers){
+                left = CardGame.decks[number-1];
+                right = CardGame.decks[number];
+            }
+            else{
+                left = CardGame.decks[number-1];
+                right = CardGame.decks[0];
+    
+            }
+            while (gameState == 0 && running) {  
+                gameState = this.play(left, right, CardGame.numplayers);
+                
+                
+            }
+            this.gameEndLog();
+    
+            if (gameState == 1) {
+                for (Player player: players) {
+                    if (player!=this){
+                        player.stop(number);
+                    }
+                
+                
+                }
+            }
+            
+        } 
+        finally{
+            fileHandler.close();
+            CardGame.latch.countDown();
         }
         
-        int gameState = 0;
-        CardDeck left;
-        CardDeck right;
-
-        if(this.hasWon()){
-            gameState = 1;
-        }
-        if (number != CardGame.numplayers){
-            left = CardGame.decks[number-1];
-            right = CardGame.decks[number];
-        }
-        else{
-            left = CardGame.decks[number-1];
-            right = CardGame.decks[0];
-
-        }
-        while (gameState == 0 && running) {  
-            gameState = this.play(left, right, CardGame.numplayers);
-            
-            
-        }
-        this.gameEndLog();
-
-        if (gameState == 1) {
-            for (Player player: players) {
-                if (player!=this){
-                    player.stop(number);
-                }
-            
-            
-            }
-        }
-        fileHandler.close();
-        CardGame.latch.countDown();
     }
     public void stop(int winnerNumber){
         this.winnerNumber = winnerNumber;
@@ -103,7 +109,7 @@ public class Player implements Runnable{
             if(!leftDeck.isEmpty()){
                 Card drawn = leftDeck.removeFromDeck();
                 
-                logger.info("player " + number + " draws a " + drawn.getDenom() + " from deck " + number);
+                logger.info(() -> "player " + number + " draws a " + drawn.getDenom() + " from deck " + number);
                 cards.add(drawn);
 
                 unpreferredCards = new ArrayList<Card>();
@@ -119,10 +125,10 @@ public class Player implements Runnable{
                     cards.remove(discarded);
                     rightDeck.addCard(discarded);
                     if (number == CardGame.numplayers){
-                        logger.info("player " + number + " discards a " + discarded.getDenom() + " to deck 1" );
+                        logger.info(() -> "player " + number + " discards a " + discarded.getDenom() + " to deck 1");
                     }
                     else {
-                        logger.info("player " + number + " discards a " + discarded.getDenom() + " to deck " + (number+1));
+                        logger.info(() -> "player " + number + " discards a " + discarded.getDenom() + " to deck " + (number+1));
                     }
                     
                     
@@ -184,15 +190,15 @@ public class Player implements Runnable{
         if ((!running || this.hasWon())){
             
             if(running == false && !this.hasWon()){
-                logger.info("player " + winnerNumber + " has informed player " + number + " that player " + winnerNumber + " has won");
+                logger.info(() -> "player " + winnerNumber + " has informed player " + number + " that player " + winnerNumber + " has won");
             }
             if(this.hasWon()){
-                logger.info("player " + number + " wins");
+                logger.info(() -> "player " + number + " wins");
                 System.out.println("player " + number + " wins");
             }
             String finalmsg;
             if(running == false || this.hasWon()){
-                logger.info("player " + number + " exits");
+                logger.info(() -> "player " + number + " exits");
 
                 if(this.hasWon()){
                     finalmsg = "player "+ number + " final hand: ";
