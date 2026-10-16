@@ -32,9 +32,17 @@ public class Player implements Runnable{
 
     }
     public void run(){
+        CardGame.startLatch.countDown();
+        try {
+            CardGame.startLatch.await();
+        } catch (InterruptedException e) {
+           Thread.currentThread().interrupt();
+        }
+        
         int gameState = 0;
         CardDeck left;
         CardDeck right;
+
         if(this.hasWon()){
             gameState = 1;
         }
@@ -182,9 +190,17 @@ public class Player implements Runnable{
                 logger.info("player " + number + " wins");
                 System.out.println("player " + number + " wins");
             }
+            String finalmsg;
             if(running == false || this.hasWon()){
                 logger.info("player " + number + " exits");
-                String finalmsg = "player "+ number + " final hand: ";
+
+                if(this.hasWon()){
+                    finalmsg = "player "+ number + " final hand: ";
+                }
+                else{
+                    finalmsg = "player "+ number + " hand: ";
+                }
+                
             for (Card card : cards) {
                 finalmsg += card.getDenom() + " ";
 
