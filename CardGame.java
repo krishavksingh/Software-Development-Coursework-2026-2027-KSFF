@@ -16,7 +16,6 @@ public class CardGame {
     
     public static void main(String[] args) throws IOException {
         List<String> cards;
-        int count;
         LinkedList<Card> pack;
         List<Player> players;
         
@@ -30,11 +29,14 @@ public class CardGame {
         while(numplayers <= 1){
             System.out.print("Please enter the number of players: ");
             try{
-                
                 numplayers = Integer.parseInt(input.nextLine().trim());
+                if (numplayers <= 1){
+                    System.out.println("Please make sure the value you enter is a positive integer greater than one.");
+                }
             }
             catch(NumberFormatException e){
                 numplayers = 0;
+                System.out.println("Please make sure the value you enter is a positive integer greater than one.");
             }
         }
         startLatch = new CountDownLatch(numplayers);
@@ -68,6 +70,7 @@ public class CardGame {
                 System.out.println("Every row must contain single postive integer");
             }
         }
+        input.close();
         
         latch = new CountDownLatch(numplayers);
         
