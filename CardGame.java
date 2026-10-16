@@ -30,6 +30,7 @@ public class CardGame {
         while(numplayers <= 1){
             System.out.print("Please enter the number of players: ");
             try{
+                
                 numplayers = Integer.parseInt(input.nextLine().trim());
             }
             catch(NumberFormatException e){
@@ -56,7 +57,7 @@ public class CardGame {
             validPack = true;
             for (String line : cards){
                 try {
-                    if(Integer.parseInt(line.trim()) <0){
+                    if(Integer.parseInt(line) <0){
                         validPack = false;
                     }
                 } catch (NumberFormatException e) {
