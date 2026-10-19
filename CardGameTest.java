@@ -9,6 +9,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -90,6 +91,11 @@ public class CardGameTest {
     @Test
     void cardAllowsforZero() {
         assertEquals(0, new Card(0).getDenom());
+    }
+
+    @Test 
+    void cardThrowsOnNegative(){
+        assertThrows(IllegalStateException.class,() -> new Card(-5));
     }
 
     @Test
@@ -250,8 +256,10 @@ public class CardGameTest {
         List<String> lines = Files.readAllLines(new File("player10_output.txt").toPath());
         
         assertEquals(List.of("player 10 wins", "player 10 exits", "player 10 final hand: 10 10 10 10 "), (lines.subList(lines.size()-3, lines.size())));
-
+        new File("player10_output.txt").delete();
     }
+
+    
 
     @Test
     void invalidPlayerCountRejected() throws Exception {
@@ -455,5 +463,50 @@ public class CardGameTest {
 
     }
 
-    
+    @Test 
+    void finalGameStateConservationTest() throws Exception{
+        InputStream oldIn = System.in;
+        PrintStream oldOut = System.out;
+        int n = 2;
+        String packPath = "testpacks/2_packNotImmediateWin.txt";
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            System.setIn(new ByteArrayInputStream((n + "\n" + packPath + "\n").getBytes()));
+            System.setOut(new PrintStream(out));
+            CardGame.main(new String[0]);
+        } finally {
+            System.setIn(oldIn);
+            System.setOut(oldOut);
+        }
+
+        List<Integer> expected = new ArrayList<>();
+        for (String line : Files.readAllLines(new File(packPath).toPath())){
+            expected.add(Integer.parseInt(line));
+        }
+        Collections.sort(expected);
+
+        List<Integer> actual = new ArrayList<>();
+        for (int i = 1; i <= n; i++) {
+            List<String> playerLines = Files.readAllLines(new File("player"+i+"_output.txt").toPath());
+            String playerHand = playerLines.get(playerLines.size()-1);
+            String[] parts = playerHand.split(":");
+            String[] cardStrings = parts[1].trim().split(" ");
+            List<Integer> hand = new ArrayList<>();
+            for (String s : cardStrings){
+                hand.add(Integer.parseInt(s));
+            }
+            actual.addAll(hand);
+
+            List<String> deckLine = Files.readAllLines(new File("deck"+i+"_output.txt").toPath());
+            String[] deckParts = deckLine.get(0).split(":");
+            if(deckParts.length > 1 && !deckParts[1].trim().isEmpty()){
+                for (String s: deckParts[1].trim().split(" ")){
+                    actual.add(Integer.parseInt(s));
+                }
+            }
+
+        }
+        Collections.sort(actual);
+        assertEquals(expected, actual);
+    }
 }
