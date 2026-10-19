@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.FileHandler;
@@ -33,17 +34,22 @@ public class CardDeck {
     }
 
     public Card removeFromDeck(){ // Draw
-        return cards.remove();
+        checkLock();
+        if (cards.isEmpty()) throw new NoSuchElementException("Deck is empty");
+        else return cards.remove();
     }
     
     public void addCard(Card card){ // Discard
+        checkLock();
         cards.add(card);
         
     }
     public boolean isEmpty(){
+        checkLock();
         return cards.isEmpty();
     }
     public void doFinalLog(){
+        checkLock();
         String msg = "deck"+ id + " contents: ";
         for (Card card : cards) {
             msg += card.getDenom() + " ";
@@ -51,6 +57,20 @@ public class CardDeck {
             
         }
         logger.info(msg);
+        
+       
+    
+    
+    }
+    public void close(){
+        checkLock();
+        fileHandler.close();
+    }
+    public void checkLock(){
+        if(!lock.isHeldByCurrentThread()){
+            throw new IllegalStateException("Current thread doesn't hold deck lock");
+
+        }
     }
 
 

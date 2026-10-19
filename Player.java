@@ -177,6 +177,7 @@ public class Player implements Runnable{
 
 
     public boolean hasWon(){
+        if(cards.size()!=4) return false;
         int cardDenom = cards.get(0).getDenom();
         for (int i=1; i < cards.size(); i++){
 

@@ -102,9 +102,15 @@ public class CardGame {
         }
         for (int i = 0; i < 4; i++) {
             for (CardDeck deck: decks) {
-                
-                Card card = pack.remove();
-                deck.addCard(card);
+                deck.getLock().lock();
+                try{
+                    Card card = pack.remove();
+                    deck.addCard(card);
+                }
+                finally{
+                    deck.getLock().unlock();
+                }
+
                 
             }
         }
@@ -119,10 +125,11 @@ public class CardGame {
 
         try{
             latch.await();
-        for (CardDeck deck: CardGame.decks) {
+            for (CardDeck deck: CardGame.decks) {
             deck.getLock().lock();
             try {
                 deck.doFinalLog();
+                deck.close();
             }
             finally{
                 deck.getLock().unlock();
