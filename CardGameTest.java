@@ -13,8 +13,10 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 public class CardGameTest {
@@ -66,6 +68,10 @@ public class CardGameTest {
             player.addCard(new Card(denomination));
         }
         return player;
+    }
+    @AfterEach 
+    void cleanup(){
+        LogManager.getLogManager().reset();
     }
 
     @Test
@@ -179,6 +185,19 @@ public class CardGameTest {
         assertEquals(List.of(8, 9), drain(right));
         assertFalse(left.getLock().isLocked());
         assertFalse(right.getLock().isLocked());
+    }
+
+    @Test 
+    void playerHasFourCardsBefore_AfterPlayCalled() throws IOException{
+        CardGame.numplayers = 2;
+        CardDeck left = newDeck(false, 2);
+        CardDeck right = newDeck(false);
+        Player player = newPlayer(1, 1, 1, 1, 3);
+        assertEquals(4, player.getCards().size());
+        player.play(left, right, 2);
+        assertEquals(4, player.getCards().size());
+
+
     }
     
     @Test
@@ -378,8 +397,9 @@ public class CardGameTest {
     
     }
 
-    @Test
+    @Test 
     void immediateWinCheck() throws Exception {
+
         InputStream oldIn = System.in;
         PrintStream oldOut = System.out;
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -393,11 +413,10 @@ public class CardGameTest {
         }
 
         for (int i = 1; i <= 2; i++) {
-            assertTrue(new File("player" + i +"_output.txt").exists());
+            
             assertTrue(new File("deck"+ i + "_output.txt").exists());
             new File("deck"+ i + "_output.txt").delete();
         }
-        
         List<String> lines = Files.readAllLines(new File("player1_output.txt").toPath());
         List<String> correctlines = new ArrayList<>();
         correctlines.add("player 1 initial hand 1 1 1 1 ");

@@ -106,6 +106,7 @@ public class Player implements Runnable{
         this.winnerNumber = winnerNumber;
         running = false;
         
+        
     }
     public int play (CardDeck leftDeck, CardDeck rightDeck, int numbers){
         
@@ -187,6 +188,10 @@ public class Player implements Runnable{
             }
             logger.info(msg);
         }
+    }
+
+    public List<Card> getCards(){
+        return cards;
     }
 
     public void removeCard(Card card){
