@@ -7,11 +7,9 @@ player_1_output.txt.lck
 player_2_output.txt.lck
 player_3_output.txt.lck
 player_4_output.txt.lck
-*.txt
-*.txt.1
-*.txt.2
-*.txt.3
-*.txt.4
-*.txt.5
-*.class
+
 .vscode/settings.json
+deck1_output.txt
+deck2_output.txt
+player1_output.txt
+player2_output.txt

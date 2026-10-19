@@ -228,5 +228,189 @@ public class CardGameTest {
         String text = out.toString();
         assertTrue(text.contains("positive integer greater than one"));
     }
+
+    @Test
+    void invalidPackNameRejected() throws Exception {
+        InputStream oldIn = System.in;
+        PrintStream oldOut = System.out;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            System.setIn(new ByteArrayInputStream(("4\nNotAFile.txt").getBytes()));
+            System.setOut(new PrintStream(out));
+            assertThrows(NoSuchElementException.class, () -> CardGame.main(new String[0])); // Happens because Scanner runs out, is normal
+        } finally {
+            System.setIn(oldIn);
+            System.setOut(oldOut);
+        }
+
+        String text = out.toString();
+        assertTrue(text.contains("Please enter a valid pack name"));
+    }
+
+
+    @Test
+    void invalidPackSizeRejected() throws Exception {
+        InputStream oldIn = System.in;
+        PrintStream oldOut = System.out;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            System.setIn(new ByteArrayInputStream(("4\ntestpacks/2_pack.txt").getBytes()));
+            System.setOut(new PrintStream(out));
+            assertThrows(NoSuchElementException.class, () -> CardGame.main(new String[0])); // Happens because Scanner runs out, is normal
+        } finally {
+            System.setIn(oldIn);
+            System.setOut(oldOut);
+        }
+
+        String text = out.toString();
+        assertTrue(text.contains("Please enter a pack of a valid size"));
+    }
+    
+    @Test
+    void invalidPackFileRejected_Negative() throws Exception {
+        InputStream oldIn = System.in;
+        PrintStream oldOut = System.out;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            System.setIn(new ByteArrayInputStream(("2\ntestpacks/invalidpack_negative.txt").getBytes()));
+            System.setOut(new PrintStream(out));
+            assertThrows(NoSuchElementException.class, () -> CardGame.main(new String[0])); // Happens because Scanner runs out, is normal
+        } finally {
+            System.setIn(oldIn);
+            System.setOut(oldOut);
+        }
+
+        String text = out.toString();
+        assertTrue(text.contains("contain single positive integer"));
+    }
+
+    @Test
+    void invalidPackFileRejected_Lines() throws Exception {
+        InputStream oldIn = System.in;
+        PrintStream oldOut = System.out;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            System.setIn(new ByteArrayInputStream(("2\ntestpacks/invalidpack_lines.txt").getBytes()));
+            System.setOut(new PrintStream(out));
+            assertThrows(NoSuchElementException.class, () -> CardGame.main(new String[0])); // Happens because Scanner runs out, is normal
+        } finally {
+            System.setIn(oldIn);
+            System.setOut(oldOut);
+        }
+
+        String text = out.toString();
+        assertTrue(text.contains("Please enter a pack of a valid size"));
+    }
+
+    @Test
+    void validNumberAndPackFileAllowed() throws Exception {
+        InputStream oldIn = System.in;
+        PrintStream oldOut = System.out;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            System.setIn(new ByteArrayInputStream(("2\ntestpacks/2_pack.txt").getBytes()));
+            System.setOut(new PrintStream(out));
+            CardGame.main(new String[0]);
+        } finally {
+            System.setIn(oldIn);
+            System.setOut(oldOut);
+        }
+
+        String text = out.toString();
+        assertTrue(text.contains("wins"));
+
+        for (int i = 1; i <= 2; i++) {
+            assertTrue(new File("player" + i +"_output.txt").exists());
+            assertTrue(new File("deck"+ i + "_output.txt").exists());
+            new File("player" + i +"_output.txt").delete();
+            new File("deck"+ i + "_output.txt").delete();
+        }
+    }
+
+    @Test
+    void validNumberAndPackFileAllowed_Four() throws Exception {
+        InputStream oldIn = System.in;
+        PrintStream oldOut = System.out;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            System.setIn(new ByteArrayInputStream(("4\ntestpacks/4_pack.txt").getBytes()));
+            System.setOut(new PrintStream(out));
+            CardGame.main(new String[0]);
+        } finally {
+            System.setIn(oldIn);
+            System.setOut(oldOut);
+        }
+
+        String text = out.toString();
+        assertTrue(text.contains("wins"));
+
+        for (int i = 1; i <= 4; i++) {
+            assertTrue(new File("player" + i +"_output.txt").exists());
+            assertTrue(new File("deck"+ i + "_output.txt").exists());
+            new File("player" + i +"_output.txt").delete();
+            new File("deck"+ i + "_output.txt").delete();
+        }
+    }
+
+    @Test
+    void validNumberAndPackFileAllowed_Five() throws Exception {
+        InputStream oldIn = System.in;
+        PrintStream oldOut = System.out;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            System.setIn(new ByteArrayInputStream(("5\ntestpacks/5_pack.txt").getBytes()));
+            System.setOut(new PrintStream(out));
+            CardGame.main(new String[0]);
+        } finally {
+            System.setIn(oldIn);
+            System.setOut(oldOut);
+        }
+
+        String text = out.toString();
+        assertTrue(text.contains("wins"));
+
+        for (int i = 1; i <= 5; i++) {
+            assertTrue(new File("player" + i +"_output.txt").exists());
+            assertTrue(new File("deck"+ i + "_output.txt").exists());
+            new File("player" + i +"_output.txt").delete();
+            new File("deck"+ i + "_output.txt").delete();
+        }
+    
+    }
+
+    @Test
+    void immediateWinCheck() throws Exception {
+        InputStream oldIn = System.in;
+        PrintStream oldOut = System.out;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            System.setIn(new ByteArrayInputStream(("2\ntestpacks/2_pack.txt").getBytes()));
+            System.setOut(new PrintStream(out));
+            CardGame.main(new String[0]);
+        } finally {
+            System.setIn(oldIn);
+            System.setOut(oldOut);
+        }
+
+        for (int i = 1; i <= 2; i++) {
+            assertTrue(new File("player" + i +"_output.txt").exists());
+            assertTrue(new File("deck"+ i + "_output.txt").exists());
+            new File("deck"+ i + "_output.txt").delete();
+        }
+        
+        List<String> lines = Files.readAllLines(new File("player1_output.txt").toPath());
+        List<String> correctlines = new ArrayList<>();
+        correctlines.add("player 1 initial hand 1 1 1 1 ");
+        correctlines.add("player 1 wins");
+        correctlines.add("player 1 exits");
+        correctlines.add("player 1 final hand: 1 1 1 1 ");
+        assertEquals(correctlines, lines);
+
+        for (int i = 1; i <= 2; i++) {
+            new File("player"+ i + "_output.txt").delete();
+        }
+
+    }
+
     
 }
