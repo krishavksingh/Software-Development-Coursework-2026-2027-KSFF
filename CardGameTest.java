@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 public class CardGameTest {
     private int nextDeckId = 2000;
     private final List<CardDeck> decks = new ArrayList<>();
+    private final List<Player> players = new ArrayList<>();
     // Helper methods
     private CardDeck newDeck(int... denominations) throws IOException {
         CardDeck deck = new CardDeck(nextDeckId);
@@ -47,6 +48,14 @@ public class CardGameTest {
         } finally {
             deck.getLock().unlock();
         }
+    }
+    private Player newPlayer(int number, int... denominations) throws IOException {
+        Player player = new Player(number, new ArrayList<>());
+        players.add(player);
+        for (int denomination : denominations) {
+            player.addCard(new Card(denomination));
+        }
+        return player;
     }
 
     @Test
@@ -102,10 +111,64 @@ public class CardGameTest {
         t.join(500);
         deck.getLock().unlock();
         assertEquals(false, numFails.get());
-        
+            
+    }
 
-        
-        
+    @Test
+    void playerWinsWithFourPreferredDenomCards() throws IOException {
+        assertTrue(newPlayer(1, 1, 1, 1, 1).hasWon());
+    }
+
+    
+    @Test
+    void playerCanWinWithNonPrefferredDenomCards() throws IOException {
+        assertTrue(newPlayer(1, 9, 9, 9, 9).hasWon());
+    }
+    @Test
+    void playerDoesNotWinWithDiffering() throws IOException {
+        assertFalse(newPlayer(2, 5, 5, 3, 6).hasWon());
+    }
+    @Test
+    void winningPlayerDoesNotDrawAnotherCard() throws IOException {
+        CardGame.numplayers = 2;
+        CardDeck left = newDeck(2);
+        CardDeck right = newDeck();
+        Player player = newPlayer(1, 1, 1, 1, 1);
+
+        assertEquals(1, player.play(left, right, 2));
+        assertEquals(List.of(2), drain(left));
+        assertTrue(isEmpty(right));
+        assertFalse(left.getLock().isLocked());
+        assertFalse(right.getLock().isLocked());
+    }
+
+    @Test
+    void playDiscardsNonPreferredCardLogic() throws IOException {
+        CardGame.numplayers = 2;
+        CardDeck left = newDeck(1);
+        CardDeck right = newDeck();
+        Player player = newPlayer(1, 1, 1, 1, 2);
+
+        assertEquals(1, player.play(left, right, 2));
+        assertTrue(player.hasWon());
+        assertTrue(isEmpty(left));
+        assertEquals(List.of(2), drain(right));
+        assertFalse(left.getLock().isLocked());
+        assertFalse(right.getLock().isLocked());
+    }
+
+    @Test
+    void playWithEmptyLeftDeckSkipsTurn() throws IOException {
+        CardGame.numplayers = 2;
+        CardDeck left = newDeck();
+        CardDeck right = newDeck(8, 9);
+        Player player = newPlayer(1, 1, 1, 2, 3);
+
+        assertEquals(0, player.play(left, right, 2));
+        assertTrue(isEmpty(left));
+        assertEquals(List.of(8, 9), drain(right));
+        assertFalse(left.getLock().isLocked());
+        assertFalse(right.getLock().isLocked());
     }
     
 }
