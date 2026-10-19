@@ -67,7 +67,7 @@ public class CardGame {
                 }
             }
             if(!validPack){
-                System.out.println("Every row must contain single postive integer");
+                System.out.println("Every row must contain single positive integer");
             }
         }
         input.close();
@@ -119,11 +119,6 @@ public class CardGame {
 
         try{
             latch.await();
-        }
-        catch(InterruptedException e){
-            Thread.currentThread().interrupt();
-        } 
-
         for (CardDeck deck: CardGame.decks) {
             deck.getLock().lock();
             try {
@@ -133,5 +128,11 @@ public class CardGame {
                 deck.getLock().unlock();
             }
         }
+        }
+        catch(InterruptedException e){
+            Thread.currentThread().interrupt();
+        } 
+
+        
     }
 }

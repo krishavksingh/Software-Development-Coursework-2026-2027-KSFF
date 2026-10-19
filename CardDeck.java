@@ -10,13 +10,14 @@ public class CardDeck {
     private final int id;
     private final ReentrantLock lock = new ReentrantLock();
     private final Logger logger;
+    private FileHandler fileHandler;
 
     public CardDeck(int id) throws IOException{
         cards = new LinkedList<Card>();
         this.id = id;
         logger = Logger.getLogger("Deck "+ id);
 
-        FileHandler fileHandler = new FileHandler("deck"+id+"_output.txt");
+        fileHandler = new FileHandler("deck"+id+"_output.txt");
         fileHandler.setFormatter(new CustomFormat());
 
         logger.addHandler(fileHandler);

@@ -9,3 +9,4 @@ player_3_output.txt.lck
 player_4_output.txt.lck
 *.txt
 *.class
+.vscode/settings.json
