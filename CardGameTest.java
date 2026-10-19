@@ -78,36 +78,37 @@ public class CardGameTest {
         }
         return player;
     }
+    /* Reset logs to prevent issues between tests */
     @AfterEach 
     void cleanup(){
         LogManager.getLogManager().reset();
     }
-
+    /* test that the card stores the denomination correctly */
     @Test
     void cardStoresDenom() {
         assertEquals(5, new Card(5).getDenom());
     }
-
+    /* test that card allows denomination of zero */
     @Test
     void cardAllowsforZero() {
         assertEquals(0, new Card(0).getDenom());
     }
-
+    /* test that card throws exception when attempting to assign negative value */
     @Test 
     void cardThrowsOnNegative(){
         assertThrows(IllegalStateException.class,() -> new Card(-5));
     }
-
+    /* test that a new deck starts emptz */
     @Test
     void newDeckStartsWithEmpty() throws IOException {
         assertTrue(isEmpty(newDeck(false)));
     }
-
+    /* test for enforcing FIFO behaviour */
     @Test
     void deckReturnsCardsasFIFO() throws IOException {
         assertEquals(List.of(1, 2, 3), drain(newDeck(false, 1, 2, 3)));
     }
-
+    /* test that deck operations without having the lock should fail */
     @Test
     void tryingDeckOperationsWithoutLockFails() throws IOException {
         CardDeck deck = newDeck(false);
@@ -118,7 +119,7 @@ public class CardGameTest {
         assertThrows(IllegalStateException.class, () -> deck.doFinalLog());
         
     }
-
+    /* test that it MUST be THE thread trying the operation that should have the lock */
     @Test
     void tryingDeckOperationsWithDifferentThreadHoldingLockFails() throws Exception {
         CardDeck deck = newDeck(false);
@@ -143,21 +144,23 @@ public class CardGameTest {
         assertEquals(false, numFails.get());
             
     }
-
+    /* test that player wins with 4 preferred cards */
     @Test
     void playerWinsWithFourPreferredDenomCards() throws IOException {
         assertTrue(newPlayer(1, 1, 1, 1, 1).hasWon());
     }
 
-    
+    /* test that player wins with 4 non preferred cards */
     @Test
     void playerCanWinWithNonPrefferredDenomCards() throws IOException {
         assertTrue(newPlayer(1, 9, 9, 9, 9).hasWon());
     }
+    /* test that player does not win with differing cards */
     @Test
     void playerDoesNotWinWithDiffering() throws IOException {
         assertFalse(newPlayer(2, 5, 5, 3, 6).hasWon());
     }
+    /* test that winning player will not attempt another go and frees the lock */
     @Test
     void winningPlayerDoesNotDrawAnotherCard() throws IOException {
         CardGame.numplayers = 2;
@@ -171,7 +174,7 @@ public class CardGameTest {
         assertFalse(left.getLock().isLocked());
         assertFalse(right.getLock().isLocked());
     }
-
+    /* test that player discards the non preferred card if thats the only option */
     @Test
     void playDiscardsNonPreferredCardLogic() throws IOException {
         CardGame.numplayers = 2;
@@ -186,7 +189,7 @@ public class CardGameTest {
         assertFalse(left.getLock().isLocked());
         assertFalse(right.getLock().isLocked());
     }
-
+    /* test that if left deck is empty, turn must be skipped */
     @Test
     void playWithEmptyLeftDeckSkipsTurn() throws IOException {
         CardGame.numplayers = 2;
@@ -200,7 +203,7 @@ public class CardGameTest {
         assertFalse(left.getLock().isLocked());
         assertFalse(right.getLock().isLocked());
     }
-
+    /* test that the player has four cards before/after the action, confirming it is atomic */
     @Test 
     void playerHasFourCardsBefore_AfterPlayCalled() throws IOException{
         CardGame.numplayers = 2;
@@ -213,7 +216,7 @@ public class CardGameTest {
 
 
     }
-    
+    /* testing the custom format to remove timestamps */
     @Test
     void customFormatAddsANewLineToTheMessage() {
         CustomFormat format = new CustomFormat();
@@ -222,7 +225,7 @@ public class CardGameTest {
         assertEquals("test message" + System.lineSeparator(), format.format(record));
     }
 
-
+    /* test that the final deck log contains the correct cards */
     @Test
     void finalDeckLogContainsTheCards() throws IOException {
         CardDeck deck = newDeck(true, 4, 5, 6);
@@ -243,7 +246,7 @@ public class CardGameTest {
         file.delete();
 
     }
-
+    /* test that the final player hand is logged correctly after a go */
     @Test
     void finalPlayerHandLogCheck() throws IOException {
         Player player = newPlayer(true, 10, 10, 10, 10, 3);
@@ -260,7 +263,7 @@ public class CardGameTest {
     }
 
     
-
+    /* test that if the player count given is invalid, it should trigger validation */
     @Test
     void invalidPlayerCountRejected() throws Exception {
         InputStream oldIn = System.in;
@@ -279,7 +282,7 @@ public class CardGameTest {
         String text = out.toString();
         assertTrue(text.contains("positive integer greater than one"));
     }
-
+    /* test that if the pack name given is invalid, it should trigger validation */
     @Test
     void invalidPackNameRejected() throws Exception {
         InputStream oldIn = System.in;
@@ -298,7 +301,7 @@ public class CardGameTest {
         assertTrue(text.contains("Please enter a valid pack name"));
     }
 
-
+    /* test if the size of the pack file is invalid it should trigger validation */
     @Test
     void invalidPackSizeRejected() throws Exception {
         InputStream oldIn = System.in;
@@ -316,7 +319,7 @@ public class CardGameTest {
         String text = out.toString();
         assertTrue(text.contains("Please enter a pack of a valid size"));
     }
-    
+    /* if the pack file contains negative elements then it should trigger validation */
     @Test
     void invalidPackFileRejected_Negative() throws Exception {
         InputStream oldIn = System.in;
@@ -334,7 +337,7 @@ public class CardGameTest {
         String text = out.toString();
         assertTrue(text.contains("contain single positive integer"));
     }
-
+    /* if the pack file contains lines elements then it should trigger validation */
     @Test
     void invalidPackFileRejected_Lines() throws Exception {
         InputStream oldIn = System.in;
@@ -352,7 +355,7 @@ public class CardGameTest {
         String text = out.toString();
         assertTrue(text.contains("Please enter a pack of a valid size"));
     }
-
+    /* test that the game runs normally when everything is valid for two players */
     @Test
     void validNumberAndPackFileAllowed() throws Exception {
         InputStream oldIn = System.in;
@@ -377,7 +380,7 @@ public class CardGameTest {
             new File("deck"+ i + "_output.txt").delete();
         }
     }
-
+    /* test that the game runs normally when everything is valid for four players */
     @Test
     void validNumberAndPackFileAllowed_Four() throws Exception {
         InputStream oldIn = System.in;
@@ -402,7 +405,7 @@ public class CardGameTest {
             new File("deck"+ i + "_output.txt").delete();
         }
     }
-
+    /* test that the game runs normally when everything is valid for five players */
     @Test
     void validNumberAndPackFileAllowed_Five() throws Exception {
         InputStream oldIn = System.in;
@@ -428,7 +431,7 @@ public class CardGameTest {
         }
     
     }
-
+    /* test that when a player is given a winning hand, they do not attempt a go as they have already won */
     @Test 
     void immediateWinCheck() throws Exception {
 
@@ -462,7 +465,7 @@ public class CardGameTest {
         }
 
     }
-
+    /* test that the cards before a game are the same as the cards after a game */
     @Test 
     void finalGameStateConservationTest() throws Exception{
         InputStream oldIn = System.in;
