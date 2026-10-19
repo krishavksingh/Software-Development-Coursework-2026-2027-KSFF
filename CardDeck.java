@@ -4,6 +4,7 @@ import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.FileHandler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class CardDeck {
@@ -23,6 +24,24 @@ public class CardDeck {
 
         logger.addHandler(fileHandler);
         logger.setUseParentHandlers(false);
+
+    }
+    public CardDeck(int id, boolean log) throws IOException{
+        cards = new LinkedList<Card>();
+        this.id = id;
+        logger = Logger.getLogger("Deck "+ id);
+        
+        if(log){
+            fileHandler = new FileHandler("deck"+id+"_output.txt");
+            fileHandler.setFormatter(new CustomFormat());
+
+            logger.addHandler(fileHandler);
+            logger.setUseParentHandlers(false);
+        }
+        else{
+            logger.setLevel(Level.OFF);
+        }
+        
 
     }
     public int getId(){
@@ -48,15 +67,20 @@ public class CardDeck {
         checkLock();
         return cards.isEmpty();
     }
+    public boolean isLogging(){
+        return (logger!=null);
+    }
     public void doFinalLog(){
-        checkLock();
-        String msg = "deck"+ id + " contents: ";
-        for (Card card : cards) {
-            msg += card.getDenom() + " ";
+        if(this.isLogging()){
+            checkLock();
+            String msg = "deck"+ id + " contents: ";
+            for (Card card : cards) {
+                msg += card.getDenom() + " ";
 
-            
+                
+            }
+            logger.info(msg);
         }
-        logger.info(msg);
         
        
     
@@ -64,7 +88,9 @@ public class CardDeck {
     }
     public void close(){
         checkLock();
-        fileHandler.close();
+        if(this.isLogging()){
+            fileHandler.close();
+        }
     }
     public void checkLock(){
         if(!lock.isHeldByCurrentThread()){

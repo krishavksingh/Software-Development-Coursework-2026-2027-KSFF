@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.FileHandler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -28,6 +29,27 @@ public class Player implements Runnable{
 
         logger.addHandler(fileHandler);
         logger.setUseParentHandlers(false);
+
+
+    }
+    public Player(int playerNumber, List<Player> players, boolean log) throws IOException{
+        number = playerNumber;
+        this.players = players;
+        cards = new ArrayList<Card>();
+        logger = Logger.getLogger("Player " + number);
+        if(log){
+            
+            
+
+            fileHandler = new FileHandler("player"+number+"_output.txt");
+            fileHandler.setFormatter(new CustomFormat());
+
+            logger.addHandler(fileHandler);
+            logger.setUseParentHandlers(false);
+        }
+        else{
+            logger.setLevel(Level.OFF);
+        }
 
 
     }
@@ -61,7 +83,7 @@ public class Player implements Runnable{
                 
                 
             }
-            this.gameEndLog();
+            if(this.isLogging())this.gameEndLog();
     
             if (gameState == 1) {
                 for (Player player: players) {
@@ -75,7 +97,7 @@ public class Player implements Runnable{
             
         } 
         finally{
-            fileHandler.close();
+            if(this.isLogging()) fileHandler.close();
             CardGame.latch.countDown();
         }
         
@@ -173,6 +195,9 @@ public class Player implements Runnable{
 
     public int getNumber(){
         return number;
+    }
+    public boolean isLogging(){
+        return (logger!=null);
     }
 
 

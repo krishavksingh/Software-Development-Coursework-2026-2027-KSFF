@@ -13,7 +13,7 @@ public class CardGameTest {
     private final List<Player> players = new ArrayList<>();
     // Helper methods
     private CardDeck newDeck(int... denominations) throws IOException {
-        CardDeck deck = new CardDeck(nextDeckId);
+        CardDeck deck = new CardDeck(nextDeckId, false);
         nextDeckId += 1;
         decks.add(deck);
         deck.getLock().lock();
@@ -50,7 +50,7 @@ public class CardGameTest {
         }
     }
     private Player newPlayer(int number, int... denominations) throws IOException {
-        Player player = new Player(number, new ArrayList<>());
+        Player player = new Player(number, new ArrayList<>(), false);
         players.add(player);
         for (int denomination : denominations) {
             player.addCard(new Card(denomination));
