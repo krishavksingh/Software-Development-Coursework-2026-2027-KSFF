@@ -220,6 +220,9 @@ public class Player implements Runnable{
     public boolean isLogging(){
         return (logger!=null);
     }
+    public void closeLogger(){
+        if(this.isLogging()) fileHandler.close();
+    }
 
     /* player has won when they hold exactly 4 cards of the same number*/
     public boolean hasWon(){

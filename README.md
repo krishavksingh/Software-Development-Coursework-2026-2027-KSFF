@@ -38,7 +38,7 @@ The game will reject a pack if the file cannot be found, if it has the wrong num
 
 ## 3. Download JUnit for testing
 
-Download junit-platform-console-standalone-1.10.2.jar from:
+The JUnit Standalone Jar should be in this folder, but if it is not, then please download junit-platform-console-standalone-1.10.2.jar from:
 
 https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.2/junit-platform-console-standalone-1.10.2.jar
 

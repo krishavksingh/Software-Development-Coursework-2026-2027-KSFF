@@ -259,6 +259,7 @@ public class CardGameTest {
         List<String> lines = Files.readAllLines(new File("player10_output.txt").toPath());
         
         assertEquals(List.of("player 10 wins", "player 10 exits", "player 10 final hand: 10 10 10 10 "), (lines.subList(lines.size()-3, lines.size())));
+        player.closeLogger();
         new File("player10_output.txt").delete();
     }
 
