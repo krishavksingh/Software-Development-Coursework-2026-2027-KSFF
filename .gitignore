@@ -13,3 +13,5 @@ deck1_output.txt
 deck2_output.txt
 player1_output.txt
 player2_output.txt
+.DS_Store
+player10_output.txt

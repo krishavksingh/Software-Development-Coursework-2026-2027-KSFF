@@ -69,6 +69,14 @@ public class CardGameTest {
         }
         return player;
     }
+    private Player newPlayer(boolean logging, int number, int... denominations) throws IOException {
+        Player player = new Player(number, new ArrayList<>(), logging);
+        players.add(player);
+        for (int denomination : denominations) {
+            player.addCard(new Card(denomination));
+        }
+        return player;
+    }
     @AfterEach 
     void cleanup(){
         LogManager.getLogManager().reset();
@@ -208,6 +216,7 @@ public class CardGameTest {
         assertEquals("test message" + System.lineSeparator(), format.format(record));
     }
 
+
     @Test
     void finalDeckLogContainsTheCards() throws IOException {
         CardDeck deck = newDeck(true, 4, 5, 6);
@@ -226,6 +235,21 @@ public class CardGameTest {
         assertTrue(output.contains("deck" + deck.getId()+ " contents: 4 5 6 "));
         File file = new File(Path.of("deck" + deck.getId() + "_output.txt").toString());
         file.delete();
+
+    }
+
+    @Test
+    void finalPlayerHandLogCheck() throws IOException {
+        Player player = newPlayer(true, 10, 10, 10, 10, 3);
+        CardDeck leftDeck = newDeck(false, 10);
+        CardDeck rightDeck = newDeck(false);
+        CardGame.numplayers = 2;
+        player.play(leftDeck, rightDeck, 2);
+
+        player.gameEndLog();
+        List<String> lines = Files.readAllLines(new File("player10_output.txt").toPath());
+        
+        assertEquals(List.of("player 10 wins", "player 10 exits", "player 10 final hand: 10 10 10 10 "), (lines.subList(lines.size()-3, lines.size())));
 
     }
 
