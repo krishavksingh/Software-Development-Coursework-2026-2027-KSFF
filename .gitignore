@@ -7,5 +7,12 @@ player_1_output.txt.lck
 player_2_output.txt.lck
 player_3_output.txt.lck
 player_4_output.txt.lck
-*.txt
-*.class
+
+.vscode/settings.json
+deck1_output.txt
+deck2_output.txt
+player1_output.txt
+player2_output.txt
+.DS_Store
+player10_output.txt
+.DS_Store
