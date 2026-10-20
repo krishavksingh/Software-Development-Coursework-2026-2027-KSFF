@@ -115,33 +115,66 @@ public class CardGame {
                 
             }
         }
+        /* Immediate Win detection */
+        boolean immediateWin = false;
+        int winnerNumber = -1;
+        for (Player player : players) {
+            if(player.hasWon()) {
+                immediateWin = true;
+                winnerNumber = player.getNumber();
+            } 
+        }
+        for (Player player : players) {
+            if(immediateWin){
+                player.stop(winnerNumber);
+                player.gameEndLog();
+                player.closeLogger();
+            }      
+        }
 
         /* start game, one thread per player*/
-        for (Player player : players) {
-            Thread t = new Thread(player);
-            t.start();
-            
+        if(!immediateWin){
+            for (Player player : players) {
+                Thread t = new Thread(player);
+                t.start();
                 
+                    
+            }
+            /* wait for game to end if not immediate then write deck logs*/
+                try{
+                /* waits until every player is finished*/
+                latch.await();
+                /* each deck is locked while logging so no player can change it at the same time*/
+                for (CardDeck deck: CardGame.decks) {
+                deck.getLock().lock();
+                try {
+                    deck.doFinalLog();
+                    deck.close();
+                }
+                finally{
+                    deck.getLock().unlock();
+                }
+            }
+            }
+            catch(InterruptedException e){
+                Thread.currentThread().interrupt();
+            } 
         }
-        /* wait for game to end then write deck logs*/
-        try{
-            /* waits until every player is finished*/
-            latch.await();
-            /* each deck is locked while logging so no player can change it at the same time*/
+        else{
+            /* if not immediate then just write logs immediately as threads are not run*/
             for (CardDeck deck: CardGame.decks) {
-            deck.getLock().lock();
-            try {
-                deck.doFinalLog();
-                deck.close();
-            }
-            finally{
-                deck.getLock().unlock();
-            }
+                deck.getLock().lock();
+                try {
+                    deck.doFinalLog();
+                    deck.close();
+                }
+                finally{
+                    deck.getLock().unlock();
+                }
+            }   
         }
-        }
-        catch(InterruptedException e){
-            Thread.currentThread().interrupt();
-        } 
+        
+        
 
         
     }

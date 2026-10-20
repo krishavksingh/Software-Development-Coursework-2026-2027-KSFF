@@ -218,7 +218,7 @@ public class Player implements Runnable{
         return number;
     }
     public boolean isLogging(){
-        return (logger!=null);
+        return (fileHandler!=null);
     }
     public void closeLogger(){
         if(this.isLogging()) fileHandler.close();
